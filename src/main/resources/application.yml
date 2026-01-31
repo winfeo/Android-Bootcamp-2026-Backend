@@ -8,7 +8,7 @@ spring:
 
   liquibase:
     enabled: true
-    change-log: classpath:db.changAelog/db.changelog-master.xml
+    change-log: classpath:db.changelog/db.changelog-master.xml
 
   jpa:
     generate-ddl: false

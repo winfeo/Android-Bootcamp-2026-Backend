@@ -19,6 +19,8 @@
                              referencedTableName="login_data"
                              referencedColumnNames="id"/>
             </column>
+            <!-- TODO добавить поле для хранения URL фото -->
+<!--            <column name="photo_url" type="VARCHAR(100)"/>-->
             <column name="full_name" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>

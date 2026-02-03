@@ -4,11 +4,15 @@
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
-    <changeSet id="2026-01-30--0004-users-data" author="winfeo">
-        <loadData tableName="users" file="db.changelog/data/csv/2026-01-30--0004-users-data.csv"
+    <changeSet id="2026-02-03--0003-dates-data" author="winfeo">
+        <loadData tableName="dates" file="db.changelog/data/csv/2026-02-03--0003-dates.csv"
                   separator=";"
                   quotchar='"'
-                  encoding="UTF-8"/>
+                  encoding="UTF-8">
+            <column name="date" type="DATE"/>
+        </loadData>
     </changeSet>
+
+
 
 </databaseChangeLog>

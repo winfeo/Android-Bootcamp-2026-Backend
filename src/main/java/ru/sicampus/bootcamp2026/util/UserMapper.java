@@ -1,6 +1,7 @@
 package ru.sicampus.bootcamp2026.util;
 
 import lombok.experimental.UtilityClass;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import ru.sicampus.bootcamp2026.dto.fromApp.NewUserDTO;
 import ru.sicampus.bootcamp2026.dto.toApp.UserDTO;
 import ru.sicampus.bootcamp2026.entity.LoginData;
@@ -18,10 +19,10 @@ public class UserMapper {
         return userDTO;
     }
 
-    public User convertToDomain(NewUserDTO dto) {
+    public User convertToDomain(NewUserDTO dto, PasswordEncoder passwordEncoder) {
         LoginData loginData = new LoginData();
         loginData.setEmail(dto.getEmail());
-        loginData.setPassword(dto.getPassword());
+        loginData.setPassword(passwordEncoder.encode(dto.getPassword()));
 
         User user = new User();
         user.setFullName(dto.getFullName());

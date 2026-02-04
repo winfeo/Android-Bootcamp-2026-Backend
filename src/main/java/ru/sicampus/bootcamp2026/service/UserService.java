@@ -12,4 +12,5 @@ public interface UserService {
     UserDTO createUser(NewUserDTO dto);
     UserDTO updateUser(UserDTO dto);
     void deleteUser(Long id);
+    UserDTO getUserByEmail(String email);
 }

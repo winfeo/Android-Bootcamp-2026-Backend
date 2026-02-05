@@ -2,6 +2,7 @@ package ru.sicampus.bootcamp2026.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.ToString;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Set;
@@ -9,6 +10,7 @@ import java.util.Set;
 @Data
 @Entity
 @Table(name = "users")
+@ToString()
 public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

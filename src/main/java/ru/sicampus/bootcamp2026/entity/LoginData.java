@@ -2,10 +2,12 @@ package ru.sicampus.bootcamp2026.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.ToString;
 
 @Data
 @Entity
 @Table(name = "login_data")
+@ToString(exclude = "user")
 public class LoginData {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

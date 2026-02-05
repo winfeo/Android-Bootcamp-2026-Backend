@@ -1,6 +1,10 @@
 package ru.sicampus.bootcamp2026.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -64,19 +68,18 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public UserDTO createUser(NewUserDTO dto) {
-        if (loginDataRepository.existsByEmail(dto.getEmail())) {
-            throw new LoginDataEmailAlreadyTakenException("Email (" + dto.getEmail() + ") уже занят.");
-        }
-
         String userRole = "ROLE_USER";
-        Optional<Authority> authority = authorityRepository.findByAuthority(userRole);
-        if (authority.isEmpty()) {
-            throw new AuthorityNotFoundException("Не найдена роль: " + userRole);
-        }
+        Authority authority = authorityRepository.findByAuthority(userRole).orElseThrow(() ->
+                new AuthorityNotFoundException("Не найдена роль: " + userRole));
 
         User user = UserMapper.convertToDomain(dto, passwordEncoder);
-        user.setAuthorities(Set.of(authority.get()));
-        return UserMapper.convertToDto(userRepository.save(user));
+        user.setAuthorities(Set.of(authority));
+
+        try {
+            return UserMapper.convertToDto(userRepository.save(user));
+        } catch (DataIntegrityViolationException e) {
+            throw new LoginDataEmailAlreadyTakenException("Email (" + dto.getEmail() + ") уже занят.");
+        }
     }
 
     @Transactional
@@ -85,16 +88,17 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(dto.getId()).orElseThrow(() ->
                         new UserNotFoundException("Пользователь (id: " + dto.getId() + ") не найден."));
 
-        if (!user.getLoginData().getEmail().equals(dto.getEmail())) {
+        LoginData loginData = user.getLoginData();
+        if (!loginData.getEmail().equals(dto.getEmail())) {
             if (loginDataRepository.existsByEmail(dto.getEmail())) {
                 throw new LoginDataEmailAlreadyTakenException("Email (" + dto.getEmail() + ") уже занят.");
             }
 
-            user.getLoginData().setEmail(dto.getEmail());
+            loginData.setEmail(dto.getEmail());
         }
         user.setFullName(dto.getFullName());
 
-        return UserMapper.convertToDto(userRepository.save(user));
+        return UserMapper.convertToDto(user);
     }
 
     @Transactional
@@ -104,5 +108,11 @@ public class UserServiceImpl implements UserService {
             throw new UserNotFoundException("Пользователь (id: " + id + ") не найден.");
         }
         userRepository.deleteById(id);
+    }
+
+    @Override
+    public Page<UserDTO> getAllUsersPaginated(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return userRepository.findAll(pageable).map(UserMapper::convertToDto);
     }
 }

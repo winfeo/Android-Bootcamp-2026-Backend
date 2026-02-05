@@ -1,5 +1,6 @@
 package ru.sicampus.bootcamp2026.service;
 
+import org.springframework.data.domain.Sort;
 import ru.sicampus.bootcamp2026.dto.fromApp.NewMeetingDTO;
 import ru.sicampus.bootcamp2026.dto.fromApp.MeetingResponseDTO;
 import ru.sicampus.bootcamp2026.dto.toApp.MeetingDTO;
@@ -21,7 +22,8 @@ public interface MeetingService {
     List<MeetingDTO> getUserMeetings(
             Long userId,
             String startDate,
-            String endDate
+            String endDate/*,
+            Sort sort*/
     );
 
     void respondToMeeting(MeetingResponseDTO dto);

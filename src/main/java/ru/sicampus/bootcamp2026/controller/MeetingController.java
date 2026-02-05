@@ -1,6 +1,7 @@
 package ru.sicampus.bootcamp2026.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -50,8 +51,11 @@ public class MeetingController {
     public ResponseEntity<List<MeetingDTO>> getUserMeetings(
             @PathVariable Long id,
             @RequestParam(name = "start_date", required = false) String startDate,
-            @RequestParam(name = "end_date", required = false) String endDate
+            @RequestParam(name = "end_date", required = false) String endDate,
+            @RequestParam(name = "sort_param", required = false, defaultValue = "date") String sortParam
     ) {
-        return ResponseEntity.ok(meetingService.getUserMeetings(id, startDate, endDate));
+        //TODO добавить поддержку нескольких параметров + сортировка при выдаче доступных дат и прочее добавить
+//        Sort sort = Sort.by(Sort.Direction.ASC, sortParam);
+        return ResponseEntity.ok(meetingService.getUserMeetings(id, startDate, endDate/*, sort*/));
     }
 }

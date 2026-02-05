@@ -1,10 +1,12 @@
 package ru.sicampus.bootcamp2026.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 
-@Data
+@Getter
+@Setter
 @Entity
 @Table(name = "login_data")
 @ToString(exclude = "user")

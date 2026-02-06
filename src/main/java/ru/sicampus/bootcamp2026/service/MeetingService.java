@@ -17,13 +17,13 @@ public interface MeetingService {
     MeetingDTO getMeetingById(Long meetingId);
     List<MeetingDTO> getAllMeetings();
 
-    List<TimeSlotDTO> getBookedSlotsByDate(String date);
+    List<TimeSlotDTO> getEmptySlotsByDate(String date);
 
     List<MeetingDTO> getUserMeetings(
             Long userId,
             String startDate,
-            String endDate/*,
-            Sort sort*/
+            String endDate,
+            Sort sort
     );
 
     void respondToMeeting(MeetingResponseDTO dto);

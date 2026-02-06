@@ -54,6 +54,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public UserDTO getUserByEmail(String email) {
         Optional<LoginData> loginData = loginDataRepository.findByEmail(email);
 
@@ -82,8 +83,8 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    @Transactional
     @Override
+    @Transactional
     public UserDTO updateUser(UserDTO dto) {
         User user = userRepository.findById(dto.getId()).orElseThrow(() ->
                         new UserNotFoundException("Пользователь (id: " + dto.getId() + ") не найден."));
@@ -101,8 +102,8 @@ public class UserServiceImpl implements UserService {
         return UserMapper.convertToDto(user);
     }
 
-    @Transactional
     @Override
+    @Transactional
     public void deleteUser(Long id) {
         if (!userRepository.existsById(id)) {
             throw new UserNotFoundException("Пользователь (id: " + id + ") не найден.");
@@ -111,6 +112,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Page<UserDTO> getAllUsersPaginated(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         return userRepository.findAll(pageable).map(UserMapper::convertToDto);

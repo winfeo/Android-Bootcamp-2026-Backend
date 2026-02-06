@@ -11,32 +11,24 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface MeetingRepository extends JpaRepository<Meeting, Long> {
-//    @Query("""
-//            SELECT DISTINCT m
-//            FROM Meeting m
-//            LEFT JOIN m.participants p
-//            JOIN m.timeSlot ts
-//            JOIN ts.date d
-//            WHERE (m.organizer.id = :userId OR p.participant.id = :userId)
-//            AND (:startDate IS NULL OR d.date >= :startDate)
-//            AND (:endDate IS NULL OR d.date <= :endDate)
-//            """)
-
     @Query("""
             SELECT DISTINCT m
             FROM Meeting m
             LEFT JOIN FETCH m.participants p
             JOIN FETCH m.timeSlot ts
-            JOIN FETCH ts.date
+            JOIN FETCH ts.date d
             JOIN FETCH m.organizer
             LEFT JOIN FETCH p.participant
             LEFT JOIN FETCH p.participantStatus
+            WHERE (m.organizer.id = :userId OR p.participant.id = :userId)
+            AND (:startDate IS NULL OR d.date >= :startDate)
+            AND (:endDate IS NULL OR d.date <= :endDate)
             """)
     List<Meeting> findUserMeetings(
             @Param("userId") Long id,
             @Param("startDate") LocalDate startDate,
-            @Param("endDate") LocalDate endDate/*,
-            Sort sort*/
+            @Param("endDate") LocalDate endDate,
+            Sort sort
     );
 
     @Query("""

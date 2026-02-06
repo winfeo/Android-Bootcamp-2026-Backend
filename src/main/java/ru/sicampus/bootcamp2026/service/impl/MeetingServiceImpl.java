@@ -1,7 +1,6 @@
 package ru.sicampus.bootcamp2026.service.impl;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,13 +20,13 @@ import ru.sicampus.bootcamp2026.util.TimeSlotMapper;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class MeetingServiceImpl implements MeetingService {
     private final MeetingRepository meetingRepository;
     private final TimeSlotRepository timeSlotRepository;
@@ -37,6 +36,7 @@ public class MeetingServiceImpl implements MeetingService {
 
 
     @Override
+    @Transactional
     public MeetingDTO createMeeting(NewMeetingDTO dto) {
         LocalTime startTime = dto.getStartTime();
         LocalTime endTime = dto.getEndTime();
@@ -101,6 +101,7 @@ public class MeetingServiceImpl implements MeetingService {
     }
 
     @Override
+    @Transactional
     public void deleteMeeting(Long id) {
         Meeting meeting = meetingRepository.findById(id).orElseThrow(() ->
                 new MeetingNotFoundException("Встреча (id: " + id + ") не найдена."));
@@ -109,6 +110,7 @@ public class MeetingServiceImpl implements MeetingService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public MeetingDTO getMeetingById(Long id) {
         Meeting meeting = meetingRepository.findById(id).orElseThrow(() ->
                 new MeetingNotFoundException("Встреча (id: " + id + ") не найдена."));
@@ -117,34 +119,52 @@ public class MeetingServiceImpl implements MeetingService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<MeetingDTO> getAllMeetings() {
         return convertList(meetingRepository.findAll());
     }
 
     @Override
-    public List<TimeSlotDTO> getBookedSlotsByDate(String dateTime) {
+    @Transactional(readOnly = true)
+    public List<TimeSlotDTO> getEmptySlotsByDate(String dateTime) {
         LocalDate date = LocalDate.parse(dateTime);
-        List<TimeSlot> timeSlots = timeSlotRepository.getBookedSlotsByDate(date);
-        return timeSlots.stream()
-                .map(TimeSlotMapper::convertToDto)
-                .collect(Collectors.toList());
+        List<TimeSlot> bookedSlots = timeSlotRepository.getBookedSlotsByDate(date);
+
+        List<TimeSlotDTO> emptySlots = new ArrayList<>();
+        LocalTime startWorkTime = LocalTime.of(9, 0);
+        LocalTime endWorkTime = LocalTime.of(18,0);
+
+        for (LocalTime start = startWorkTime; start.isBefore(endWorkTime); start = start.plusHours(1)) {
+            LocalTime startTime = start;
+            LocalTime endTime = start.plusHours(1);
+
+            boolean isBooked = bookedSlots.stream()
+                    .anyMatch(booked -> startTime.isBefore(booked.getEndTime()) && endTime.isAfter(booked.getStartTime()));
+
+            if (!isBooked) {
+                emptySlots.add(TimeSlotMapper.convertToDto(date, startTime, endTime));
+            }
+        }
+        return emptySlots;
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<MeetingDTO> getUserMeetings(
             Long id,
             String start,
-            String end/*,
-            Sort sort*/
+            String end,
+            Sort sort
     ) {
         LocalDate startDate = start != null ? LocalDate.parse(start): null;
         LocalDate endDate = end != null ? LocalDate.parse(end): null;
-        List<Meeting> meetings = meetingRepository.findUserMeetings(id, startDate, endDate/*, sort*/);
+        List<Meeting> meetings = meetingRepository.findUserMeetings(id, startDate, endDate, sort);
 
         return convertList(meetings);
     }
 
     @Override
+    @Transactional
     public void respondToMeeting(MeetingResponseDTO dto) {
         Meeting meeting = meetingRepository.findById(dto.getMeetingId())
                 .orElseThrow(() -> new MeetingNotFoundException("Встреча (id: " + dto.getMeetingId() + ") не найдена."));
@@ -167,6 +187,7 @@ public class MeetingServiceImpl implements MeetingService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<MeetingDTO> getUserInvitations(Long id) {
         return convertList(meetingRepository.findUserInvitations(id));
     }

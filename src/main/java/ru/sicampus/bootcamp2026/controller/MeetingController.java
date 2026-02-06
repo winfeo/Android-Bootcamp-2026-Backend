@@ -40,22 +40,20 @@ public class MeetingController {
         return ResponseEntity.ok(meetingService.getMeetingById(id));
     }
 
-    @GetMapping("/booked")
-    public ResponseEntity<List<TimeSlotDTO>> getBookedSlots (
+    @GetMapping("/slots")
+    public ResponseEntity<List<TimeSlotDTO>> getEmptySlots (
             @RequestParam(name = "date") String date
     ) {
-        return ResponseEntity.ok(meetingService.getBookedSlotsByDate(date));
+        return ResponseEntity.ok(meetingService.getEmptySlotsByDate(date));
     }
 
     @GetMapping("/user/{id}")
     public ResponseEntity<List<MeetingDTO>> getUserMeetings(
             @PathVariable Long id,
             @RequestParam(name = "start_date", required = false) String startDate,
-            @RequestParam(name = "end_date", required = false) String endDate,
-            @RequestParam(name = "sort_param", required = false, defaultValue = "date") String sortParam
+            @RequestParam(name = "end_date", required = false) String endDate
     ) {
-        //TODO добавить поддержку нескольких параметров + сортировка при выдаче доступных дат и прочее добавить
-//        Sort sort = Sort.by(Sort.Direction.ASC, sortParam);
-        return ResponseEntity.ok(meetingService.getUserMeetings(id, startDate, endDate/*, sort*/));
+        Sort sort = Sort.by(Sort.Order.asc("timeSlot.date.date"), Sort.Order.asc("timeSlot.startTime"));
+        return ResponseEntity.ok(meetingService.getUserMeetings(id, startDate, endDate, sort));
     }
 }

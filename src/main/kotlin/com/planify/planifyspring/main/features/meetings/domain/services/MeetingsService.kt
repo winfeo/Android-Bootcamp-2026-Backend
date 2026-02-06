@@ -17,13 +17,11 @@ interface MeetingsService {
     ): Meeting
 
     fun getMeetingById(
-        meetingId: Long,
-        requesterId: Long
-    ): Meeting?
+        meetingId: Long
+    ): Meeting
 
     fun patchMeeting(
         meetingId: Long,
-        updaterId: Long,
         patch: MeetingPatchSchema
     )
 
@@ -44,16 +42,24 @@ interface MeetingsService {
         userId: Long
     ): MeetingParticipant
 
+
+    fun rescheduleMeeting(
+        meetingId: Long,
+        rescheduleTo: Instant
+    )
+
+    fun getMeetingWithParticipantIds(
+        meetingId: Long
+    ): MeetingWithParticipantIds
+
     fun isUserParticipant(
         userId: Long,
         meetingId: Long,
     ): Boolean
 
-    fun rescheduleMeeting(
-        meetingId: Long,
-        rescheduleTo: Instant,
-        requesterId: Long
-    )
-
-//    fun getMeetingWithParticipantIds(meetingId: Long): MeetingWithParticipantIds  // TODO
+    fun userHasMeetingsBetween(
+        userId: Long,
+        startAt: Instant,
+        endAt: Instant
+    ): Boolean
 }

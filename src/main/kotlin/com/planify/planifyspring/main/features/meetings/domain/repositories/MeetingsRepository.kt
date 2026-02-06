@@ -42,5 +42,9 @@ interface MeetingsRepository {
         userId: Long
     ): MeetingParticipant
 
+    fun getMeetingWithParticipantIds(meetingId: Long): MeetingWithParticipantIds?
+
     fun isUserParticipant(userId: Long, meetingId: Long): Boolean
+
+    fun userHasMeetingsBetween(userId: Long, startAt: Instant, endAt: Instant): Boolean
 }

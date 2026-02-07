@@ -172,6 +172,11 @@ public class MeetingServiceImpl implements MeetingService {
     }
 
     @Override
+    public List<MeetingDTO> getOrganizerMeetings(Long organizerId) {
+        return convertList(meetingRepository.findOrganizerMeetings(organizerId));
+    }
+
+    @Override
     @Transactional
     public void respondToMeeting(MeetingResponseDTO dto) {
         Meeting meeting = meetingRepository.findById(dto.getMeetingId())

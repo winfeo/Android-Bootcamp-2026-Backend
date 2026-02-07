@@ -9,11 +9,13 @@ import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.http.converter.HttpMessageNotReadableException
+import org.springframework.security.authorization.AuthorizationDeniedException
 import org.springframework.web.HttpRequestMethodNotSupportedException
 import org.springframework.web.bind.MissingServletRequestParameterException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.context.request.WebRequest
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException
 import org.springframework.web.servlet.NoHandlerFoundException
 
 @RestControllerAdvice
@@ -104,12 +106,32 @@ class GlobalExceptionHandler {  // TODO: Split this into different handlers
         e: MissingServletRequestParameterException,
         request: WebRequest
     ): ResponseEntity<ApplicationResponse<Nothing>> {
-
         return buildErrorResponse(
             error = e,
             status = HttpStatus.BAD_REQUEST,
             appCode = 2005,
             message = "Required request parameter '${e.parameterName}' is not present"
+        )
+    }
+
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException::class)
+    fun handleMethodArgumentTypeMismatchException(e: MethodArgumentTypeMismatchException): ResponseEntity<ApplicationResponse<Nothing>> {
+        return buildErrorResponse(
+            error = e,
+            status = HttpStatus.BAD_REQUEST,
+            appCode = 2005,
+            message = "Bad url or parameter argument format"
+        )
+    }
+
+        @ExceptionHandler(AuthorizationDeniedException::class)
+    fun handleAuthorizationDeniedException(e: AuthorizationDeniedException): ResponseEntity<ApplicationResponse<Nothing>> {
+        return buildErrorResponse(
+            error = e,
+            status = HttpStatus.FORBIDDEN,
+            appCode = 2006,
+            message = "Access denied"
         )
     }
 

@@ -4,11 +4,11 @@ import com.planify.planifyspring.main.features.meetings.domain.entities.MeetingI
 import com.planify.planifyspring.main.features.meetings.domain.entities.MeetingInviteStatus
 import java.time.Instant
 
-class MeetingInviteDTO(
+data class MeetingInviteDTO(
     val uuid: String,
     val meetingId: Long,
     val senderId: Long,
-    val targetUserId: Long,
+    val targetId: Long,
     val status: MeetingInviteStatus,
     val createdAt: Instant,
     val updatedAt: Instant
@@ -18,7 +18,7 @@ class MeetingInviteDTO(
             uuid = entity.uuid,
             meetingId = entity.meetingId,
             senderId = entity.senderId,
-            targetUserId = entity.targetId,
+            targetId = entity.targetId,
             status = entity.status,
             createdAt = entity.createdAt,
             updatedAt = entity.updatedAt

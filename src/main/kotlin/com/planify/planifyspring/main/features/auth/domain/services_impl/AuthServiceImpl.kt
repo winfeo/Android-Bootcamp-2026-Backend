@@ -8,6 +8,8 @@ import com.planify.planifyspring.main.features.auth.domain.repositories.Sessions
 import com.planify.planifyspring.main.features.auth.domain.repositories.TokensRepository
 import com.planify.planifyspring.main.features.auth.domain.repositories.UsersRepository
 import com.planify.planifyspring.main.features.auth.domain.services.AuthService
+import com.planify.planifyspring.main.features.profiles.domain.schemas.CreateProfileSchema
+import com.planify.planifyspring.main.features.profiles.domain.services.ProfilesService
 import org.springframework.cache.CacheManager
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
@@ -20,7 +22,8 @@ class AuthServiceImpl(
     private val sessionsRepository: SessionsRepository,
     private val usersRepository: UsersRepository,
     private val cacheManager: CacheManager,
-    private val objectMapper: ObjectMapper
+    private val objectMapper: ObjectMapper,
+    private val profilesService: ProfilesService
 ) : AuthService {
     private fun generateTokenUuid(): String {
         return tokensRepository.generateTokenUuid()
@@ -41,6 +44,7 @@ class AuthServiceImpl(
         userId: Long,
         userAgent: String,
         sessionName: String,
+        clientName: String,
         accessTokenUuid: String,
         refreshTokenUuid: String
     ): AuthSession {
@@ -50,6 +54,7 @@ class AuthServiceImpl(
             sessionName = sessionName,
             accessTokenUuid = accessTokenUuid,
             refreshTokenUuid = refreshTokenUuid,
+            clientName = clientName
         ).also {
             val cache = JsonCacheWrapper(cacheManager.getCache("sessions")!!, objectMapper)
             cache.put("${it.userId}-${it.uuid}", it)
@@ -59,7 +64,8 @@ class AuthServiceImpl(
     override fun startSession(
         userId: Long,
         userAgent: String,
-        sessionName: String
+        sessionName: String,
+        clientName: String
     ): Pair<AuthSession, AuthTokenPair> {
 
         val newAccessTokenUuid = generateTokenUuid()
@@ -71,6 +77,7 @@ class AuthServiceImpl(
             sessionName = sessionName,
             accessTokenUuid = newAccessTokenUuid,
             refreshTokenUuid = newRefreshTokenUuid,
+            clientName = clientName
         )
 
         return session to AuthTokenPair(
@@ -140,9 +147,10 @@ class AuthServiceImpl(
     override fun createUser(
         username: String,
         email: String,
-        passwordRaw: String
+        passwordRaw: String,
+        createProfileSchema: CreateProfileSchema
     ): User {
-        return usersRepository.create(
+        val user = usersRepository.create(
             username = username,
             email = email,
             passwordHash = SecurityHelper.hashPassword(passwordRaw)
@@ -150,6 +158,10 @@ class AuthServiceImpl(
             val cache = JsonCacheWrapper(cacheManager.getCache("users")!!, objectMapper)
             cache.put(it.id.toString(), it)
         }
+
+        profilesService.createProfile(user.id, createProfileSchema)
+
+        return user
     }
 
     override fun getUserById(id: Long): User {

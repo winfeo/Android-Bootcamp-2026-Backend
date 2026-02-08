@@ -8,12 +8,12 @@ import jakarta.persistence.*
 open class RoleModel(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long? = null,
+    open val id: Long? = null,
 
-    val name: String,
+    open val name: String,
 
     @ManyToMany(mappedBy = "roles")
-    val users: MutableSet<UserModel> = mutableSetOf(),
+    open val users: MutableSet<UserModel> = mutableSetOf(),
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
@@ -21,7 +21,7 @@ open class RoleModel(
         joinColumns = [JoinColumn(name = "role_id")],
         inverseJoinColumns = [JoinColumn(name = "authority_id")]
     )
-    val authorities: MutableSet<AuthorityModel> = mutableSetOf(),
+    open val authorities: MutableSet<AuthorityModel> = mutableSetOf(),
 ) {
     fun toEntity(): Role {
         return Role(

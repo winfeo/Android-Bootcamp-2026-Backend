@@ -5,13 +5,14 @@ import com.planify.planifyspring.main.features.auth.domain.entities.AuthSession
 import com.planify.planifyspring.main.features.auth.domain.entities.AuthTokenPair
 import com.planify.planifyspring.main.features.auth.domain.entities.AuthTokenPayload
 import com.planify.planifyspring.main.features.auth.domain.entities.User
+import com.planify.planifyspring.main.features.profiles.domain.schemas.CreateProfileSchema
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 
 interface AuthService {
     fun decodeJwtToken(token: String): AuthTokenPayload
 
-    fun startSession(userId: Long, userAgent: String, sessionName: String): Pair<AuthSession, AuthTokenPair>
+    fun startSession(userId: Long, userAgent: String, sessionName: String, clientName: String): Pair<AuthSession, AuthTokenPair>
 
     fun getSession(userId: Long, sessionUuid: String): AuthSession
 
@@ -23,7 +24,7 @@ interface AuthService {
 
     fun revokeSession(userId: Long, sessionUuid: String)
 
-    fun createUser(username: String, email: String, passwordRaw: String): User
+    fun createUser(username: String, email: String, passwordRaw: String, createProfileSchema: CreateProfileSchema): User
 
     fun getUserById(id: Long): User
     fun getUserByIdWithAccessInfo(id: Long): Pair<User, AccessInfo>

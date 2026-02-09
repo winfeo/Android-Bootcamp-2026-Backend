@@ -1,6 +1,5 @@
 package com.planify.planifyspring.main.features.auth.routing
 
-import com.planify.planifyspring.core.utils.getRandomString
 import com.planify.planifyspring.main.common.entities.ApplicationResponse
 import com.planify.planifyspring.main.common.utils.asSuccessApplicationResponse
 import com.planify.planifyspring.main.features.auth.domain.entities.AuthContext
@@ -14,6 +13,8 @@ import com.planify.planifyspring.main.features.auth.routing.dto.refresh.RefreshR
 import com.planify.planifyspring.main.features.auth.routing.dto.refresh.RefreshResponseDTO
 import com.planify.planifyspring.main.features.auth.routing.dto.register.RegisterRequestDTO
 import com.planify.planifyspring.main.features.auth.routing.dto.register.RegisterResponseDTO
+import com.planify.planifyspring.main.features.profiles.domain.schemas.CreateProfileSchema
+import jakarta.validation.Valid
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
@@ -32,7 +33,7 @@ class AuthFeatureController(
             email = body.email,
             passwordRaw = body.password,
             userAgent = userAgent,
-            sessionName = "${userAgent}-${getRandomString(8)}"
+            clientName = body.clientName
         )
 
         return ResponseEntity.ok(
@@ -48,14 +49,21 @@ class AuthFeatureController(
     @PostMapping("/register")
     fun register(
         @RequestHeader("User-Agent") userAgent: String,
-        @RequestBody body: RegisterRequestDTO
+        @Valid @RequestBody body: RegisterRequestDTO
     ): ResponseEntity<ApplicationResponse<RegisterResponseDTO>> {
         val (info, tokens) = authUseCaseGroup.register(
             email = body.email,
             username = body.username,
             passwordRaw = body.password,
             userAgent = userAgent,
-            sessionName = "${userAgent}-${getRandomString(8)}"
+            clientName = body.clientName,
+            createProfileSchema = CreateProfileSchema(
+                firstName = body.firstName,
+                lastName = body.lastName,
+                position = body.position,
+                department = body.department,
+                profileImageUrl = body.profileImageUrl
+            )
         )
 
         return ResponseEntity.ok(

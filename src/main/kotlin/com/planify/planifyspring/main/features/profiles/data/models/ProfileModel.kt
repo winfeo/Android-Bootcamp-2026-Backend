@@ -11,17 +11,19 @@ import jakarta.persistence.Table
 open class ProfileModel(
     @Id
     @Column(nullable = false, unique = true)
-    val userId: Long,
+    open val userId: Long,
 
-    val firstName: String,
+    open val firstName: String,
 
-    val lastName: String,
+    open val lastName: String,
 
-    val position: String,
+    @Column(unique = true)
+    open val position: String?,
 
-    val department: String,
+    @Column(unique = true)
+    open val department: String?,
 
-    val profileImageUrl: String
+    open val profileImageUrl: String
 ) {
     fun toEntity(): Profile {
         return Profile(

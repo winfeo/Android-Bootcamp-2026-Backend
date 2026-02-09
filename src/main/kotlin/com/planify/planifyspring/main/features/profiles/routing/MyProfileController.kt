@@ -3,13 +3,14 @@ package com.planify.planifyspring.main.features.profiles.routing
 import com.planify.planifyspring.main.common.entities.ApplicationResponse
 import com.planify.planifyspring.main.common.utils.asSuccessApplicationResponse
 import com.planify.planifyspring.main.features.auth.domain.entities.AuthContext
-import com.planify.planifyspring.main.features.profiles.domain.schemas.ProfilePatchSchema
+import com.planify.planifyspring.main.features.profiles.domain.schemas.PatchProfileSchema
 import com.planify.planifyspring.main.features.profiles.domain.use_cases.ProfilesUseCaseGroup
 import com.planify.planifyspring.main.features.profiles.routing.dto.ProfileDTO
 import com.planify.planifyspring.main.features.profiles.routing.dto.get_profile.GetProfileResponseDTO
 import com.planify.planifyspring.main.features.profiles.routing.dto.patch.PatchProfileRequestDTO
 import com.planify.planifyspring.main.features.profiles.routing.dto.search.SearchProfilesResponseDTO
 import com.planify.planifyspring.main.features.profiles.routing.dto.update.UpdateProfileRequestDTO
+import jakarta.validation.Valid
 import org.springframework.data.domain.Pageable
 import org.springframework.data.web.PageableDefault
 import org.springframework.http.ResponseEntity
@@ -37,9 +38,9 @@ class MyProfileController(
     @PatchMapping("/my")
     fun patchProfile(
         @AuthenticationPrincipal authContext: AuthContext,
-        @RequestBody body: PatchProfileRequestDTO
+        @Valid @RequestBody body: PatchProfileRequestDTO
     ): ResponseEntity<ApplicationResponse<Nothing>> {
-        profilesUseCaseGroup.patchProfile(authContext.user.id, ProfilePatchSchema(
+        profilesUseCaseGroup.patchProfile(authContext.user.id, PatchProfileSchema(
             firstName = body.firstName,
             lastName = body.lastName,
             position = body.position,
@@ -55,7 +56,7 @@ class MyProfileController(
         @AuthenticationPrincipal authContext: AuthContext,
         @RequestBody body: UpdateProfileRequestDTO
     ): ResponseEntity<ApplicationResponse<Nothing>> {
-        profilesUseCaseGroup.patchProfile(authContext.user.id, ProfilePatchSchema(
+        profilesUseCaseGroup.patchProfile(authContext.user.id, PatchProfileSchema(
             firstName = body.firstName,
             lastName = body.lastName,
             position = body.position,

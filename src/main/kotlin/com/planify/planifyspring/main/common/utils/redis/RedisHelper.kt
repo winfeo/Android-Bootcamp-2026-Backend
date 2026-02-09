@@ -6,11 +6,16 @@ import org.springframework.data.redis.core.StringRedisTemplate
 import org.springframework.stereotype.Component
 import java.time.Duration
 
+@Suppress("unused")
 @Component
 class RedisHelper(
     private val stringRedisTemplate: StringRedisTemplate,
     private val objectMapperHelper: ObjectMapperHelper
 ) {
+    fun expire(key: String, ttl: Duration) {
+        stringRedisTemplate.expire(key, ttl)
+    }
+
     fun <T : Any> hsetField(key: String, field: String, value: T) {
         val jsonSting = objectMapperHelper.convertToString(value)
         stringRedisTemplate.opsForHash<String, String>().put(key, field, jsonSting)
@@ -21,8 +26,8 @@ class RedisHelper(
     }
 
     fun <T : Any> hset(key: String, value: T) {
-        val hash = objectMapperHelper.convertToStringsMap(value)
-        stringRedisTemplate.opsForHash<String, String>().putAll(key, hash)
+        val data = objectMapperHelper.convertToStringsMap(value)
+        stringRedisTemplate.opsForHash<String, String>().putAll(key, data)
     }
 
     fun <T : Any> hget(key: String, clazz: Class<T>): T? {
@@ -71,6 +76,32 @@ class RedisHelper(
         return stringRedisTemplate.opsForStream<String, String>().add(key, objectMapperHelper.convertToStringsMap(value))
     }
 
+    fun deleteFromStream(key: String, recordId: RecordId) {
+        stringRedisTemplate.opsForStream<String, String>().delete(key, recordId)
+    }
+
+    fun <T : Any> readStream(
+        key: String,
+        offset: ReadOffset,
+        count: Long,
+        timeout: Long,
+        clazz: Class<T>
+    ): List<Pair<RecordId, T>> {
+        val redis = stringRedisTemplate.opsForStream<String, String>()
+
+        val readOptions = StreamReadOptions
+            .empty()
+            .count(count)
+            .block(Duration.ofSeconds(timeout))
+
+        val offset = StreamOffset.create(key, offset)
+        val records = redis.read(readOptions, offset) ?: return emptyList()
+
+        return records.mapNotNull { record ->
+            record.id to objectMapperHelper.convertFromStringsMap(record.value, clazz)
+        }
+    }
+
     fun <T : Any> readAsConsumer(
         key: String,
         group: String,
@@ -93,7 +124,6 @@ class RedisHelper(
 
         return records.mapNotNull { record ->
             objectMapperHelper.convertFromStringsMap(record.value, clazz)
-                .also { acknowledge(key, group, record.id) }
         }
     }
 

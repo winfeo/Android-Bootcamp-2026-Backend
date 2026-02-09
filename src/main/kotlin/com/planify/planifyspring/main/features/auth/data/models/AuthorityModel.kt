@@ -8,15 +8,15 @@ import jakarta.persistence.*
 open class AuthorityModel(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long? = null,
+    open val id: Long? = null,
 
-    val name: String,
-
-    @ManyToMany(mappedBy = "authorities")
-    val users: MutableSet<UserModel> = mutableSetOf(),
+    open val name: String,
 
     @ManyToMany(mappedBy = "authorities")
-    val roles: MutableSet<RoleModel> = mutableSetOf(),
+    open val users: MutableSet<UserModel> = mutableSetOf(),
+
+    @ManyToMany(mappedBy = "authorities")
+    open val roles: MutableSet<RoleModel> = mutableSetOf(),
 ) {
     fun toEntity(): Authority {
         return Authority(
@@ -25,3 +25,4 @@ open class AuthorityModel(
         )
     }
 }
+
